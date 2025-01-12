@@ -2,6 +2,7 @@
   "name": "ws",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "jwt-decode": "^4.0.0",
     "uuid": "^11.0.4",
     "ws": "^8.18.0"
   }
