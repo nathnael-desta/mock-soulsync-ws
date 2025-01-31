@@ -13,11 +13,30 @@ const users = {};
 
 const handleMessage = (bytes) => {
   const message = JSON.parse(bytes.toString());
-  Object.keys(connections).forEach((senderId) => {
-    const connection = connections[senderId];
-    const messageJson = JSON.stringify(message);
-    connection.send(messageJson);
-  });
+  console.log("the mesasge", message)
+  if ("conversationId" in message) {
+    Object.keys(connections).forEach((senderId) => {
+      const connection = connections[senderId];
+      const messageJson = JSON.stringify(message);
+      connection.send(messageJson);
+    });
+  } else {
+    const now = new Date();
+    const createdAt = now.toISOString();
+
+    const newMessage = {
+      conversationId: message.metadata.conversationId,
+      type: "SENT",
+      body: message.payload.body,
+      createdAt: createdAt
+    }
+    Object.keys(connections).forEach((senderId) => {
+      const connection = connections[senderId];
+      const messageJson = JSON.stringify(newMessage);
+      connection.send(messageJson);
+    });
+  }
+
 };
 
 const handleClose = (userId) => {
@@ -28,11 +47,10 @@ const handleClose = (userId) => {
 wsServer.on("connection", (connection, request) => {
   const { token } = url.parse(request.url, true).query;
   const decoded = jwtDecode(token);
-  console.log(`connected`, decoded);
   const userId = decoded.sub;
   connections[userId] = connection;
 
-  connection.on("message", (message) => handleMessage(message, userId));
+  connection.on("message", (message) => handleMessage(message));
   connection.on("close", () => handleClose(userId));
 });
 
